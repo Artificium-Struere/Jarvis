@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Rendered on your machine by setup_assets.py, not checked in.
+assets/*.mp3
+assets/*.wav
+
+# Downloaded models
+models/
+*.onnx
+
+# Runtime
+*.log
+memory/*.local.md

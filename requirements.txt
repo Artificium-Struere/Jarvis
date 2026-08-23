@@ -1,0 +1,16 @@
+# JARVIS - step 1 (wake word + greeting)
+# Everything here is free, runs locally, and needs no account or API key.
+# Python 3.11 is the safe target on Windows; 3.12 works, 3.13 has patchy
+# onnxruntime wheels.
+
+openwakeword>=0.6.0      # wake word, local, pretrained hey_jarvis model
+onnxruntime>=1.16.0      # inference backend for the above
+sounddevice>=0.4.6       # microphone input
+numpy>=1.24,<2.0         # openwakeword is not numpy 2 clean yet
+edge-tts>=6.1.9          # speech out, free Microsoft neural voices
+pygame>=2.5.0            # audio playback
+
+# Added in later steps:
+#   faster-whisper        (step 2, local transcription)
+#   pyautogui pyperclip pygetwindow  (step 4, desktop control)
+#   pystray pillow keyboard          (step 5, tray icon and global hotkey)
