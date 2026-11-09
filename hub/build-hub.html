@@ -1,0 +1,352 @@
+<title>Artificium Struere Build Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky top bar with four tabs; one view at a time, routed on the hash. Ring steps read like instrument codes (mh3.2) in mono. */
+:root{
+  --bg:#eef1f0; --panel:#ffffff; --ink:#14201f; --muted:#5b6a68; --line:#d3dbd9;
+  --accent:#0d6b66; --accent-soft:#d7ebe8; --wait:#9a5b00; --wait-soft:#f6e7cc;
+  --owed:#a3332b; --owed-soft:#f5dcd9; --ok:#2f7a3a; --ok-soft:#dcefdc;
+  --f-display:"Archivo",system-ui,sans-serif; --f-body:"IBM Plex Sans",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1716; --panel:#172221; --ink:#e3ecea; --muted:#93a5a2; --line:#2a3836;
+  --accent:#4fc0b6; --accent-soft:#163a37; --wait:#e6a94a; --wait-soft:#3a2c14;
+  --owed:#f08a80; --owed-soft:#3d1f1c; --ok:#79c886; --ok-soft:#1b3420; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1716; --panel:#172221; --ink:#e3ecea; --muted:#93a5a2; --line:#2a3836;
+  --accent:#4fc0b6; --accent-soft:#163a37; --wait:#e6a94a; --wait-soft:#3a2c14;
+  --owed:#f08a80; --owed-soft:#3d1f1c; --ok:#79c886; --ok-soft:#1b3420; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding-block:12px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:17px;letter-spacing:.01em}
+.brand small{display:block;font-family:var(--f-mono);font-weight:400;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav a{font-weight:600;font-size:14px;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:6px}
+nav a:hover{color:var(--ink);background:var(--bg)}
+nav a[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{padding-block:28px 64px;display:grid;gap:32px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:28px;font-weight:800}
+h2{font-size:19px;font-weight:700}
+h3{font-size:15px;font-weight:700}
+p{margin:0;max-width:68ch}
+.lede{color:var(--muted)}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.code{font-family:var(--f-mono);font-weight:500}
+.sec{display:grid;gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.ring details{padding:16px}
+.ring summary{list-style:none;cursor:pointer;display:grid;gap:6px}
+.ring summary::-webkit-details-marker{display:none}
+.ring .count{font-family:var(--f-display);font-size:34px;font-weight:800;line-height:1}
+.ring .names{font-size:13px;color:var(--muted)}
+.ring .hint{font-size:12px;color:var(--accent);font-weight:600}
+.ring ol{margin:12px 0 0;padding-left:0;list-style:none;display:grid;gap:6px;border-top:1px solid var(--line);padding-top:12px}
+.ring li{display:grid;grid-template-columns:42px 1fr;gap:8px;font-size:13px}
+.ring li .code{color:var(--muted)}
+.stop{color:var(--wait);font-weight:600}
+.pill{display:inline-block;font-family:var(--f-mono);font-size:11px;font-weight:500;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.pill.wait{background:var(--wait-soft);color:var(--wait)}
+.pill.owed{background:var(--owed-soft);color:var(--owed)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.held{background:var(--accent-soft);color:var(--accent)}
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.num{background:var(--panel);padding:14px 16px;display:grid;gap:2px}
+.num b{font-family:var(--f-display);font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.num span{font-size:12px;color:var(--muted)}
+.tablebox{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:14px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td .sub{display:block;font-size:12px;color:var(--muted)}
+.row-toggle{all:unset;cursor:pointer;font-weight:600;color:var(--ink)}
+.row-toggle::after{content:" ▸";color:var(--muted)}
+.row-toggle[aria-expanded="true"]::after{content:" ▾"}
+.notes td{background:var(--bg);font-size:13px}
+.notes ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.mask{font-family:var(--f-mono);letter-spacing:.1em;color:var(--muted)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tools input{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);min-width:0;flex:1 1 200px}
+.chip{font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.card{all:unset;cursor:pointer;display:grid;gap:8px;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.card:hover{border-color:var(--accent)}
+.frame{aspect-ratio:16/10;max-width:100%;border:2px dashed var(--owed);border-radius:6px;display:grid;place-items:center;background:repeating-linear-gradient(135deg,transparent 0 10px,var(--owed-soft) 10px 11px)}
+.frame.phone{aspect-ratio:9/13;width:58%;margin:0 auto;border-radius:14px}
+.frame.voice{aspect-ratio:16/10;border-radius:40px}
+.frame span{font-family:var(--f-mono);font-size:12px;font-weight:500;color:var(--owed);background:var(--panel);padding:2px 8px;border-radius:4px}
+.card .meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.preview{padding:18px;display:grid;gap:10px}
+.preview ul{margin:0;padding-left:18px}
+.empty{padding:18px;color:var(--muted)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.two .panel{padding:16px;display:grid;gap:8px;align-content:start}
+.swatches{display:flex;gap:6px;flex-wrap:wrap}
+.sw{width:34px;height:34px;border-radius:6px;border:1px solid var(--line)}
+footer{color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding-block:16px}
+@media (prefers-reduced-motion:no-preference){.card,.chip,nav a{transition:background .15s,border-color .15s,color .15s}}
+</style>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="7" fill="var(--accent)"/><text x="17" y="22.5" text-anchor="middle" font-family="Archivo,system-ui,sans-serif" font-weight="800" font-size="14" fill="var(--panel)">AS</text></svg>
+      <div>Build Hub<small>Artificium Struere</small></div>
+    </div>
+    <nav aria-label="Build Hub tabs">
+      <a href="#overview" data-tab="overview">Overview</a>
+      <a href="#projects" data-tab="projects">Projects</a>
+      <a href="#designs" data-tab="designs">Designs</a>
+      <a href="#platforms" data-tab="platforms">Platforms</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+<!-- ============================================================ OVERVIEW -->
+<main id="overview" data-view>
+  <div class="sec">
+    <span class="eyebrow">Updated Nov 9, 2026 · 1 build</span>
+    <h1>JARVIS is at <span class="code">mh1.3</span>. It waits on Kev to set the price.</h1>
+    <p class="lede">The code has already reached <span class="code">mh3.2</span>: PR #1 is open and held. Scope and design were skipped, so they are owed first. Next step: <span class="code">mh1.4</span>, sign the scope.</p>
+  </div>
+
+  <section class="sec" aria-labelledby="ring-h">
+    <h2 id="ring-h">The ring</h2>
+    <div class="grid4 ring">
+      <div class="panel"><details open>
+        <summary><span class="eyebrow">mh1 Prelim</span><span class="count">1</span><span class="names">JARVIS, at mh1.3</span><span class="hint">Steps and stops</span></summary>
+        <ol>
+          <li><span class="code">1.1</span><span>Discovery: done Nov 9 from the repo. 6 owner questions open</span></li>
+          <li><span class="code">1.2</span><span>Concept: done. 6 epics, cut list drafted</span></li>
+          <li><span class="code">1.3</span><span class="stop">STOP, builder sets price ← JARVIS</span></li>
+          <li><span class="code">1.4</span><span class="stop">STOP, client signs</span></li>
+        </ol>
+      </details></div>
+      <div class="panel"><details>
+        <summary><span class="eyebrow">mh2 Design</span><span class="count">0</span><span class="names">JARVIS owes all three docs</span><span class="hint">Steps and stops</span></summary>
+        <ol>
+          <li><span class="code">2.1</span><span>Wireframes: owed</span></li>
+          <li><span class="code">2.2</span><span>Prototype: owed</span></li>
+          <li><span class="code">2.3</span><span>Walkthrough: owed</span></li>
+          <li><span class="code">2.4</span><span class="stop">STOP, client signs off the freeze</span></li>
+        </ol>
+      </details></div>
+      <div class="panel"><details>
+        <summary><span class="eyebrow">mh3 Dev</span><span class="count">0</span><span class="names">JARVIS code held at mh3.2 (PR #1)</span><span class="hint">Steps and gates</span></summary>
+        <ol>
+          <li><span class="code">3.1</span><span>Branch: reached</span></li>
+          <li><span class="code">3.2</span><span>Push: PR #1 open, held until mh2.4</span></li>
+          <li><span class="code">3.3</span><span>Merge: not yet</span></li>
+          <li><span class="code">3.4</span><span class="stop">Deploy. Gates: money, live DB, store publishing, key rotation, contact sends</span></li>
+        </ol>
+      </details></div>
+      <div class="panel"><details>
+        <summary><span class="eyebrow">mh4 Post</span><span class="count">0</span><span class="names">None yet</span><span class="hint">Steps and stops</span></summary>
+        <ol>
+          <li><span class="code">4.1</span><span>Code sweep</span></li>
+          <li><span class="code">4.2</span><span>Security sweep and spend caps</span></li>
+          <li><span class="code">4.3</span><span>Post mortem</span></li>
+          <li><span class="code">4.4</span><span class="stop">STOP, builder approves new rules</span></li>
+        </ol>
+      </details></div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="ship-h">
+    <h2 id="ship-h">Shipping <span class="eyebrow">P1, from GitHub</span></h2>
+    <div class="nums">
+      <div class="num"><b>0</b><span>PRs merged</span></div>
+      <div class="num"><b>1</b><span>PRs open (#1)</span></div>
+      <div class="num"><b>0.0</b><span>PRs a day, since Aug 23</span></div>
+      <div class="num"><b>0</b><span>Lines shipped to main</span></div>
+      <div class="num"><b>1,003</b><span>Lines waiting on PR #1</span></div>
+      <div class="num"><b>0</b><span>Migrations</span></div>
+    </div>
+    <div class="nums">
+      <div class="num"><b>2</b><span>Agent sessions (PR #1 build, this Apply)</span></div>
+      <div class="num"><b>0</b><span>Skills called by the build</span></div>
+      <div class="num"><b>1</b><span>Connectors used (GitHub)</span></div>
+    </div>
+  </section>
+</main>
+
+<!-- ============================================================ PROJECTS -->
+<main id="projects" data-view hidden>
+  <div class="sec">
+    <span class="eyebrow">P2 · every build</span>
+    <h1>Projects</h1>
+  </div>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>Build</th><th>Step</th><th>Where it runs</th><th>Waits on</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><button class="row-toggle" aria-expanded="false" aria-controls="n-jarvis">JARVIS</button><span class="sub">Windows voice assistant</span></td>
+          <td><span class="code">mh1.3</span><span class="sub">code at mh3.2, held</span></td>
+          <td>Kev's Windows PC<span class="sub">not run there yet</span></td>
+          <td><span class="pill wait">Kev: set price</span></td>
+        </tr>
+        <tr class="notes" id="n-jarvis" hidden><td colspan="4"><ul>
+          <li>Wake word and cached greeting (epic E1) are written and compile. They have never run on the target machine, and the README asks for testing there.</li>
+          <li>PR #1 is open and mergeable, with no CI. It is held, not closed: no code lands before the scope is signed and the design is frozen.</li>
+          <li>The six owner questions in scope.md need answers before signing: fast lane vs Claude, the allowlist, transcript retention, the Claude usage cap, the audio hardware, and the Python version.</li>
+          <li>After mh1.4: the mh2 canvas covers 7 surfaces (voice, console, setup and diagnostics, Claude bridge, desktop hands, tray and hotkey, memory).</li>
+        </ul></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="sec" aria-labelledby="docs-h">
+    <h2 id="docs-h">Three docs per app</h2>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>App</th><th>1 · Canvas</th><th>2 · Prototype</th><th>3 · Live vs design</th><th>Scope</th></tr></thead>
+        <tbody><tr>
+          <td><b>JARVIS</b></td>
+          <td><span class="pill owed">Owed</span></td>
+          <td><span class="pill owed">Owed</span></td>
+          <td><span class="pill owed">Owed</span></td>
+          <td><span class="pill wait">scope.md, unsigned</span></td>
+        </tr></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<!-- ============================================================ DESIGNS -->
+<main id="designs" data-view hidden>
+  <div class="sec">
+    <span class="eyebrow">P3 · canvases, prototypes, live vs design</span>
+    <h1>Designs</h1>
+    <p class="lede">No designs exist yet. Each frame below is a screen the mh2 canvas must cover. They are all marked Owed until mh2.1 draws them.</p>
+  </div>
+  <div class="tools">
+    <input id="design-search" type="search" placeholder="Search screens" aria-label="Search screens">
+    <button class="chip" data-filter="all" aria-pressed="true">All</button>
+    <button class="chip" data-filter="desktop" aria-pressed="false">Desktop</button>
+    <button class="chip" data-filter="voice" aria-pressed="false">Voice</button>
+    <button class="chip" data-filter="tray" aria-pressed="false">Tray</button>
+  </div>
+  <div class="gallery" id="gallery"></div>
+  <div class="panel preview" id="preview" hidden></div>
+
+  <div class="two">
+    <div class="panel">
+      <h3>How to edit</h3>
+      <p>After mh1.4, the canvas is drawn as a Design artifact and linked here. Changes from the walkthrough go onto it until the mh2.4 freeze. After the freeze, new ideas go on a separate concepts canvas.</p>
+    </div>
+    <div class="panel">
+      <h3>Brand system <span class="pill owed">Owed</span></h3>
+      <p>Artificium Struere has no logo or palette on file. This hub uses a placeholder monogram and these colors until Kev supplies the brand.</p>
+      <div class="swatches" aria-hidden="true">
+        <div class="sw" style="background:var(--accent)"></div><div class="sw" style="background:var(--ink)"></div><div class="sw" style="background:var(--bg)"></div><div class="sw" style="background:var(--wait)"></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="sec" aria-labelledby="drift-h">
+    <h2 id="drift-h">Drift</h2>
+    <div class="tablebox"><table>
+      <thead><tr><th>Surface</th><th>Frozen design</th><th>Live</th><th>Drift</th></tr></thead>
+      <tbody>
+        <tr><td>S1 Voice: greeting</td><td>none</td><td>PR #1, unverified</td><td><span class="pill owed">Can't measure until mh2.4</span></td></tr>
+        <tr><td>S2 Console</td><td>none</td><td>PR #1, unverified</td><td><span class="pill owed">Can't measure until mh2.4</span></td></tr>
+        <tr><td>S3 Setup and diagnostics</td><td>none</td><td>PR #1, unverified</td><td><span class="pill owed">Can't measure until mh2.4</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</main>
+
+<!-- ============================================================ PLATFORMS -->
+<main id="platforms" data-view hidden>
+  <div class="sec">
+    <span class="eyebrow">P4 · key names only, never values</span>
+    <h1>Platforms</h1>
+    <p class="lede">The stack runs locally and is free, apart from Claude Code. Claude Code needs a named usage cap before epic E3 connects it.</p>
+  </div>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>Service</th><th>Used for</th><th>Login · keys</th><th>Spend cap</th><th>State</th></tr></thead>
+      <tbody id="platform-rows"></tbody>
+    </table>
+  </div>
+</main>
+
+<footer>Sources: the GitHub repo Artificium-Struere/Jarvis (main and PR #1), scope.md and harness.md. Nothing on this page comes from a live run.</footer>
+</div>
+
+<script>
+const designs=[
+  {id:"d1",name:"Wake and greeting",surface:"voice",frame:"voice",epic:"E1",show:["Wake fires on \"Hey Jarvis\"","Cached greeting plays with no delay","Mic closed during playback","Back to listening"]},
+  {id:"d2",name:"Console: listening",surface:"desktop",frame:"desktop",epic:"E1",show:["Banner and model ready line","Wake event log lines with score","Loud STOPPED error states"]},
+  {id:"d3",name:"Console: tune meter",surface:"desktop",frame:"desktop",epic:"E1",show:["Live score bar 0 to 1","Threshold marker","Noise floor vs wake peak"]},
+  {id:"d4",name:"Setup and check_audio",surface:"desktop",frame:"desktop",epic:"E1",show:["Asset report","Four layer check: devices, mic meter, playback, edge-tts","Which layer broke, and the fix"]},
+  {id:"d5",name:"Voice round trip",surface:"voice",frame:"voice",epic:"E2",show:["Request after wake","Fast lane vs Claude routing","Spoken answer","Offline and mic error phrases"]},
+  {id:"d6",name:"Claude bridge confirm",surface:"voice",frame:"voice",epic:"E3",show:["Allowlist hit or spoken confirm","Session resume","Spoken summary of what Claude did"]},
+  {id:"d7",name:"Desktop hands",surface:"desktop",frame:"desktop",epic:"E4",show:["Paste, type, focus targets","What it may do unasked","Undo or stop phrase"]},
+  {id:"d8",name:"Tray menu and states",surface:"tray",frame:"phone",epic:"E5",show:["Icon states: listening, muted, thinking, error","Menu: mute, hotkey, quit","Barge-in behaviour"]},
+  {id:"d9",name:"Memory and guardrails",surface:"desktop",frame:"desktop",epic:"E6",show:["CLAUDE.md rules Kev edits","memory/ notes layout","Start on boot setting"]}
+];
+const platforms=[
+  {name:"GitHub",use:"Repo, PRs, previews",login:"Kev's account",keys:[],cap:"n/a, free",state:["ok","in use"]},
+  {name:"Claude Code",use:"The brain from epic E3 (`claude -p`)",login:"Kev's plan",keys:[],cap:"Owed: name a usage ceiling before E3",state:["wait","wired at E3"]},
+  {name:"Microsoft edge-tts",use:"Renders spoken phrases",login:"none",keys:[],cap:"n/a, free",state:["wait","unofficial endpoint, may break"]},
+  {name:"openWakeWord models",use:"hey_jarvis wake model download",login:"none",keys:[],cap:"n/a, free",state:["ok","on PR #1"]},
+  {name:"faster-whisper",use:"Local transcription, epic E2",login:"none",keys:[],cap:"n/a, free",state:["held","not wired"]},
+  {name:"PyPI",use:"Python packages",login:"none",keys:[],cap:"n/a, free",state:["ok","on PR #1"]}
+];
+const $=s=>document.querySelector(s);
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+// tabs
+const tabs=["overview","projects","designs","platforms"];
+function route(){
+  const h=location.hash.slice(1); const t=tabs.includes(h)?h:"overview";
+  document.querySelectorAll("[data-view]").forEach(v=>v.hidden=v.id!==t);
+  document.querySelectorAll("nav a").forEach(a=>{if(a.dataset.tab===t)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+}
+addEventListener("hashchange",route); route();
+
+// project notes
+document.querySelectorAll(".row-toggle").forEach(b=>b.addEventListener("click",()=>{
+  const open=b.getAttribute("aria-expanded")!=="true"; b.setAttribute("aria-expanded",open);
+  document.getElementById(b.getAttribute("aria-controls")).hidden=!open;
+}));
+
+// designs
+let filter="all";
+function drawGallery(){
+  const q=$("#design-search").value.trim().toLowerCase();
+  const list=designs.filter(d=>(filter==="all"||d.surface===filter)&&(!q||(d.name+" "+d.epic+" "+d.show.join(" ")).toLowerCase().includes(q)));
+  $("#gallery").innerHTML=list.length?list.map(d=>`<button class="card" data-id="${d.id}" aria-label="Preview ${esc(d.name)}"><div class="frame ${d.frame}"><span>Owed</span></div><b>${esc(d.name)}</b><div class="meta"><span>JARVIS · ${d.epic}</span><span>${d.surface}</span></div></button>`).join(""):`<div class="empty">No screens match.</div>`;
+  $("#gallery").querySelectorAll(".card").forEach(c=>c.addEventListener("click",()=>preview(c.dataset.id)));
+}
+function preview(id){
+  const d=designs.find(x=>x.id===id); const p=$("#preview");
+  p.innerHTML=`<span class="eyebrow">Preview · ${d.epic} · ${d.surface}</span><h3>${esc(d.name)} <span class="pill owed">Owed</span></h3><p>Nothing has been drawn yet. At mh2.1 the canvas must show:</p><ul>${d.show.map(s=>`<li>${esc(s)}</li>`).join("")}</ul>`;
+  p.hidden=false; p.scrollIntoView({block:"nearest"});
+}
+$("#design-search").addEventListener("input",drawGallery);
+document.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{
+  filter=c.dataset.filter; document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===c)); drawGallery();
+}));
+drawGallery();
+
+// platforms
+$("#platform-rows").innerHTML=platforms.map((p,i)=>`<tr><td><button class="row-toggle" aria-expanded="false" aria-controls="k${i}">${esc(p.name)}</button></td><td>${esc(p.use)}</td><td>${esc(p.login)} <span class="mask">••••</span><span class="sub">${p.keys.length} keys</span></td><td>${esc(p.cap)}</td><td><span class="pill ${p.state[0]}">${esc(p.state[1])}</span></td></tr><tr class="notes" id="k${i}" hidden><td colspan="5">Key names: ${p.keys.length?p.keys.map(esc).join(", "):"none. This service takes no key"}.</td></tr>`).join("");
+$("#platform-rows").querySelectorAll(".row-toggle").forEach(b=>b.addEventListener("click",()=>{
+  const open=b.getAttribute("aria-expanded")!=="true"; b.setAttribute("aria-expanded",open);
+  document.getElementById(b.getAttribute("aria-controls")).hidden=!open;
+}));
+</script>
